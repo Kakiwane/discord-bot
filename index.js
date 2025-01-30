@@ -12,6 +12,7 @@ const client = new Client({
 });
 
 client.on('ready', async () => {
+  console.log(`Logged in as ${client.user.tag}!`);
   // Register the slash command
   try {
     await client.application.commands.create({
@@ -70,7 +71,7 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-client.on('guildMemberAdd',     async (member) => {
+client.on('guildMemberAdd', async (member) => {
     try {
       const welcomeDM = `👋 Welcome ${member} to ${member.guild.name}!\n\n` +
         "Please read our rules and enjoy your stay!\n" +
