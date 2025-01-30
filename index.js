@@ -1,6 +1,6 @@
 require('dotenv').config();
 const TOKEN = process.env.DISCORD_TOKEN;
-const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require('discord.js');
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -85,6 +85,61 @@ client.on('guildMemberAdd', async (member) => {
     }
 });
   
+module.exports = {
+  data: new SlashCommandBuilder()
+      .setName('help')
+      .setDescription('Show all available commands')
+      .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages),
+  async execute(interaction) {
+      // Get all registered commands from your collection
+      const commands = interaction.client.commands;
+
+      // Organize commands by category
+      const commandCategories = {};
+      commands.forEach(command => {
+          const category = command.data.category || 'General';
+          if (!commandCategories[category]) {
+              commandCategories[category] = [];
+          }
+          commandCategories[category].push(command);
+      });
+
+      // Create embed
+      const helpEmbed = new EmbedBuilder()
+          .setColor('#2b2d31')
+          .setTitle('📚 Command Help')
+          .setThumbnail(interaction.client.user.displayAvatarURL())
+          .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() })
+          .setTimestamp();
+
+      // Add fields for each category
+      for (const [category, cmds] of Object.entries(commandCategories)) {
+          const commandList = cmds.map(cmd => 
+              `**/${cmd.data.name}** - ${cmd.data.description}`
+          ).join('\n');
+          
+          helpEmbed.addFields({
+              name: `__${category}__`,
+              value: commandList,
+              inline: false
+          });
+      }
+
+      // Add additional information
+      helpEmbed.addFields({
+          name: 'ℹ️ Need More Help?',
+          value: `Join our support server: [invite link]\nVisit our dashboard: [website URL]`,
+          inline: false
+      });
+
+      await interaction.reply({
+          embeds: [helpEmbed],
+          ephemeral: true
+      });
+  },
+  // Optional: Add category for organization
+  category: 'Information'
+};
 
 // Replace with your bot token
 client.login(TOKEN);
