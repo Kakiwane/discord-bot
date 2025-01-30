@@ -13,6 +13,7 @@ const client = new Client({
 
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  
   // Register the slash command
   try {
     await client.application.commands.create({
